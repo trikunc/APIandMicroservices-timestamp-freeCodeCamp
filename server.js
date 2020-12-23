@@ -31,10 +31,48 @@ var listener = app.listen(process.env.PORT, function () {
   console.log('Your app is listening on port ' + listener.address().port);
 });
 
-let resObj = {}
+
+app.get("/api/timestamp", (req, res) => {
+  let resObj = {}
+  let objDate = new Date()
+  let unixValue = objDate.getTime()
+  let utcValue = objDate.toUTCString()
+  resObj["unix"] = unixValue
+  resObj["utc"] = utcValue
+  res.json(resObj);
+})
 
 app.get("/api/timestamp/:date", (req, res) => {
-  let date = req.params.date
-  if(date.includes("-")) resObj["unix"] = new Date(date).getTime()
-  res.json(resObj)
+  let resObj = {}
+  let date_string = req.params.date
+  let timeStamp
+  let unixValue;
+  let utcValue;
+  let isNum = /^\d+$/.test(date_string)
+  console.log(isNum);
+ 
+  if(isNum) {
+    timeStamp = new Date(parseInt(date_string))
+    unixValue = timeStamp.valueOf()
+    utcValue = timeStamp.toUTCString()
+  } else {
+    timeStamp = new Date(date_string)
+    unixValue = timeStamp.valueOf()
+    utcValue = timeStamp.toUTCString()
+  }
+  
+   console.log("utcValue:", utcValue)
+   if (utcValue == "Invalid Date") {
+    console.log("if true run")
+    resObj["error"] = "Invalid Date"  
+    res.json(resObj);
+
+  } else {
+    console.log("else run")
+    resObj["unix"] = unixValue
+    resObj["utc"] = utcValue
+    res.json(resObj);
+
+  }
 })
+
